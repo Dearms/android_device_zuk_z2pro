@@ -88,6 +88,17 @@ on boot
     chmod 0666 /dev/i2c-3
     chmod 0666 /dev/i2c-9
 
+# Audio smartPA cold boot
+service tfa_cold_boot /system/bin/sh /system/bin/tfa_coldboot.sh /etc/silence_short.wav 15 1
+    class main
+    user system
+    group system
+    disabled
+    oneshot
+
+on property:service.soundcard.detected=1
+    start tfa_cold_boot
+
 # Start camera server as daemon
 service qcamerasvr /system/bin/mm-qcamera-daemon
     class late_start
@@ -107,7 +118,7 @@ service qvop-daemon /system/bin/qvop-daemon
     group system drmrpc
 
 # Start up peripheral manager
-service per_mgr /system/bin/pm-service
+service per_mgr system/bin/pm-service
     class core
     user system
     group system net_raw
@@ -238,11 +249,22 @@ service displayfeature /system/bin/displayfeature
     user root
     group root
 
-service readmac /system/bin/readmac
-    class main
-    user root
-    group root
-    oneshot
+service qpaydaemon /system/vendor/bin/qpaydaemon
+    class late_start
+    user system
+    group system
+
+service nv_fem /system/bin/nv_fem
+   class main
+   user root
+   group net_raw
+   oneshot
+
+service nv_mac /system/bin/nv_mac
+   class main
+   user root
+   group net_raw
+   oneshot
 
 service mmbn-daemon /system/bin/mmbn-daemon
     class main
@@ -250,3 +272,9 @@ service mmbn-daemon /system/bin/mmbn-daemon
 
 on property:slpi.restart=1
     write /sys/kernel/debug/msm_subsys/slpi restart
+
+on property:persist.sys.display_oled_hbm=0
+   write /sys/devices/virtual/graphics/fb0/msm_fb_dispparam 0xE00
+
+on property:persist.sys.display_oled_hbm=1
+   write /sys/devices/virtual/graphics/fb0/msm_fb_dispparam 0xD00

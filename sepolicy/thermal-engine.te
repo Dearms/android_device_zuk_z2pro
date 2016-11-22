@@ -1,0 +1,2 @@
+allow thermal-engine sysfs_kgsl:file { getattr open read };
+set_prop(thermal-engine, diag_prop)

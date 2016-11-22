@@ -16,4 +16,6 @@
 
 LOCAL_PATH := $(call my-dir)
 
+ifeq ($(TARGET_DEVICE),z2pro)
 include $(call all-subdir-makefiles,$(LOCAL_PATH))
+endif
